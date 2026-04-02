@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Video Transcription Tool</title>
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: Arial, sans-serif;
+      color: white;
+    }
+    .card {
+      width: 500px;
+      background: #0b1220;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.5);
+    }
+    input {
+      width: 100%;
+      padding: 12px;
+      border-radius: 6px;
+      border: none;
+      margin-bottom: 15px;
+      font-size: 14px;
+    }
+    button {
+      width: 100%;
+      padding: 12px;
+      background: #22c55e;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #16a34a;
+    }
+    #result {
+      margin-top: 20px;
+      font-size: 14px;
+      white-space: pre-wrap;
+    }
+  </style>
+</head>
+<body>
+
+<div class="card">
+  <h2>🎬 Video Transcription Tool</h2>
+
+  <input type="text" id="urlInput" placeholder="Paste Instagram / YouTube link">
+  <button onclick="transcribe()">Transcribe</button>
+
+  <div id="result"></div>
+</div>
+
+<script>
+function transcribe() {
+  const url = document.getElementById("urlInput").value;
+  const resultDiv = document.getElementById("result");
+
+  if (!url) {
+    resultDiv.innerHTML = "<span style='color:red;'>Please enter a URL</span>";
+    return;
+  }
+
+  resultDiv.innerHTML = "⏳ Processing... please wait";
+
+  fetch("/transcribe", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ url: url })
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.status === "success") {
+      resultDiv.innerHTML = `
+        <b>✅ Transcription Successful</b><br><br>
+        <b>Text:</b><br><br>
+        ${data.transcription}
+      `;
+    } else {
+      resultDiv.innerHTML = `<span style="color:red;">${data.error}</span>`;
+    }
+  })
+  .catch(err => {
+    resultDiv.innerHTML = "<span style='color:red;'>Something went wrong</span>";
+  });
+}
+</script>
+
+</body>
+</html>
